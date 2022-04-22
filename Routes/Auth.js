@@ -42,7 +42,7 @@ const addNewUser = (user) => {
       const hashedPassword = await bcrypt.hash(user.password, 10)
       const newUser = { ...user, password: hashedPassword }
 
-      connection.query(' INSERT INTO users set ? ', newUser, (err, rows) => {
+      connection.query(' INSERT INTO users SET ? ', newUser, (err, rows) => {
         if (err) {
           reject('Could not execute query')
         }

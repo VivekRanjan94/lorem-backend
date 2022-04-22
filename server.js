@@ -11,6 +11,15 @@ const { initPassport } = require('./config/passportConfig')
 const passport = require('passport')
 
 const { login, logout, register, returnUser } = require('./Routes/Auth')
+const { getAllOrders, getUsers } = require('./Routes/Admin')
+const { getProducts, getOrders, addProduct } = require('./Routes/Seller')
+const {
+  getWishlist,
+  getCart,
+  moveToCart,
+  moveToWishlist,
+} = require('./Routes/Customer')
+const { getAllProducts } = require('./Routes/Common')
 
 // Express instance
 const app = express()
@@ -43,11 +52,29 @@ app.use(passport.initialize())
 app.use(passport.session())
 initPassport()
 
-// Routes
+// Auth Routes
 app.get('/user', returnUser)
 app.post('/login', login)
 app.post('/logout', logout)
 app.post('/register', register)
+
+// Common Route
+app.get('/get-all-products', getAllProducts)
+
+// Admin Routes
+app.get('/get-users', getUsers)
+app.get('/get-all-orders', getAllOrders)
+
+//Seller Routes
+app.get('/get-products', getProducts)
+app.get('/get-orders', getOrders)
+app.post('/add-product', addProduct)
+
+//Customer Routes
+app.get('/get-wishlist', getWishlist)
+app.get('/get-cart', getCart)
+app.post('/move-to-cart', moveToCart)
+app.post('/move-to-wishlist', moveToWishlist)
 
 // Start server
 app.listen(PORT, () => {
