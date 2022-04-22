@@ -4,7 +4,7 @@ const getOrdersQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT * FROM (orders INNER JOIN products WHERE orders.product_id = products.id) Where seller_id = ? ',
+        'SELECT user_id, product_id, product.name FROM orders INNER JOIN product ON orders.product_id = product.id WHERE seller_id = ? ',
         id,
         (err, rows) => {
           if (err) {
