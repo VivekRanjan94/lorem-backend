@@ -278,6 +278,71 @@ const moveToWishlist = async (req, res) => {
   }
 }
 
+const addOrderQuery = async (user_id, product_id) => {
+  return new Promise((resolve, reject) => {
+    try {
+      connection.query(
+        `INSERT INTO orders (user_id, product_id) VALUES (${user_id}, ${product_id})`,
+        (err, rows) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(true)
+          }
+        }
+      )
+    } catch (e) {
+      console.error(e)
+      reject(e)
+    }
+  })
+}
+
+const checkout = async (req, res) => {
+  const { user } = req
+  try {
+    const products = await getCartQuery(user.id)
+
+    await Promise.all(
+      products.map((product) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            await addOrderQuery(user.id, product.id)
+
+            resolve(true)
+          } catch (e) {
+            console.log(e)
+            reject(e)
+          }
+        })
+      })
+    )
+
+    await Promise.all(
+      products.map((product) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            await deleteFromCartQuery(user.id, product.id)
+
+            resolve(true)
+          } catch (e) {
+            console.log(e)
+            reject(e)
+          }
+        })
+      })
+    )
+
+    return res.status(200).json({ success: true })
+  } catch (e) {
+    console.log(e)
+    return res
+      .status(503)
+      .json({ success: false, message: 'Failed to checkout' })
+  }
+}
+
 module.exports = {
   getCart,
   getWishlist,
@@ -287,4 +352,5 @@ module.exports = {
   addToWishlist,
   deleteFromCart,
   deleteFromWishlist,
+  checkout,
 }

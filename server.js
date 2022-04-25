@@ -31,6 +31,7 @@ const {
   addToWishlist,
   deleteFromCart,
   deleteFromWishlist,
+  checkout,
 } = require('./Routes/Customer')
 const { getAllProducts } = require('./Routes/Common')
 
@@ -97,6 +98,7 @@ app.post(
   customerRoute,
   deleteFromWishlist
 )
+app.post('/checkout', privateRoute, customerRoute, checkout)
 
 // Start server
 app.listen(PORT, () => {
