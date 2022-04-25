@@ -71,7 +71,8 @@ const addToCartQuery = (user_id, product_id) => {
         `SELECT * FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id}`,
         (err, rows) => {
           if (err) {
-            reject(err)
+            console.error(err)
+            reject('Could not add to cart')
           } else {
             if (rows.length !== 0) {
               reject('Already in cart')
@@ -80,7 +81,8 @@ const addToCartQuery = (user_id, product_id) => {
                 `INSERT INTO cart (user_id, product_id) VALUES (${user_id}, ${product_id})`,
                 (err2, rows2) => {
                   if (err2) {
-                    reject(err2)
+                    console.error(err2)
+                    reject('Could not add to cart')
                   } else {
                     resolve(true)
                   }
@@ -114,14 +116,14 @@ const addToWishlistQuery = (user_id, product_id) => {
         `INSERT INTO wishlist (user_id, product_id) VALUES (${user_id}, ${product_id})`,
         (err, rows) => {
           if (err) {
-            reject(err)
+            reject('Could not add to wishlist')
           } else {
             resolve(true)
           }
         }
       )
     } catch (e) {
-      reject(e)
+      reject('Could not add to wishlist')
     }
   })
 }
