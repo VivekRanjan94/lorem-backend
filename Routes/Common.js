@@ -4,7 +4,7 @@ const getAllProductsQuery = () => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT products.name as name,products.brand as brand, products.image as image, products.price as price, products.id as id, users.id as seller_id FROM products INNER JOIN users ON products.seller_id = users.id',
+        'SELECT products.name as name,products.brand as brand, products.image as image, products.price as price, products.id as id, users.first_name as first_name, users.last_name as last_name FROM products INNER JOIN users ON products.seller_id = users.id',
         (err, rows) => {
           if (err) {
             console.error(err)
