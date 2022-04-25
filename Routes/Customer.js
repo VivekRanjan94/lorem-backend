@@ -4,8 +4,7 @@ const getCartQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT * FROM cart WHERE user_id = ? ',
-        id,
+        `SELECT * FROM cart INNER JOIN products ON cart.product_id = products.id WHERE user_id = ${id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -21,14 +20,16 @@ const getCartQuery = (id) => {
 }
 
 const getCart = async (req, res) => {
-  const { user_id } = req.body
+  const { user_id } = req.query
 
   try {
     const cart = await getCartQuery(user_id)
 
     return res.status(200).json({ success: true, cart })
   } catch (e) {
-    return res.status(503).json({ success: false })
+    return res
+      .status(503)
+      .json({ success: false, message: 'Could not get Cart' })
   }
 }
 
@@ -36,8 +37,7 @@ const getWishlistQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT * FROM wishlist WHERE user_id = ? ',
-        id,
+        `SELECT * FROM wishlist INNER JOIN products ON wishlist.product_id = products.id WHERE user_id = ${id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -53,7 +53,7 @@ const getWishlistQuery = (id) => {
 }
 
 const getWishlist = async (req, res) => {
-  const { user_id } = req.body
+  const { user_id } = req.query
 
   try {
     const wishlist = await getWishlistQuery(user_id)
@@ -68,12 +68,25 @@ const addToCartQuery = (user_id, product_id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        `INSERT INTO cart (user_id, product_id) VALUES (${user_id}, ${product_id})`,
+        `SELECT * FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id}`,
         (err, rows) => {
           if (err) {
             reject(err)
           } else {
-            resolve(true)
+            if (rows.length !== 0) {
+              reject('Already in cart')
+            } else {
+              connection.query(
+                `INSERT INTO cart (user_id, product_id) VALUES (${user_id}, ${product_id})`,
+                (err2, rows2) => {
+                  if (err2) {
+                    reject(err2)
+                  } else {
+                    resolve(true)
+                  }
+                }
+              )
+            }
           }
         }
       )
@@ -128,7 +141,7 @@ const deleteFromCartQuery = (user_id, product_id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        `DELETE FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id})`,
+        `DELETE FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -158,7 +171,7 @@ const deleteFromWishlistQuery = (user_id, product_id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        `DELETE FROM wishlist WHERE user_id = ${user_id} AND product_id = ${product_id})`,
+        `DELETE FROM wishlist WHERE user_id = ${user_id} AND product_id = ${product_id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -184,41 +197,32 @@ const deleteFromWishlist = async (req, res) => {
   }
 }
 
-const moveToCartQuery = (user_id, product_id) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await addToCartQuery(user_id, product_id)
-      await deleteFromWishlistQuery(user_id, product_id)
-    } catch (e) {
-      reject(e)
-    }
-  })
-}
-
 const moveToCart = async (req, res) => {
   const { user_id, product_id } = req.body
 
   try {
-    await moveToCartQuery(user_id, product_id)
+    await addToCartQuery(user_id, product_id)
+    await deleteFromWishlistQuery(user_id, product_id)
 
+    return res.status(200).json({ success: true })
+  } catch (e) {
+    return res
+      .status(503)
+      .json({ success: false, message: 'Could not move to cart' })
+  }
+}
+
+const moveToWishlist = async (req, res) => {
+  const { user_id, product_id } = req.body
+
+  try {
+    await addToWishlistQuery(user_id, product_id)
+    await deleteFromCartQuery(user_id, product_id)
     return res.status(200).json({ success: true })
   } catch (e) {
     return res.status(503).json({ success: false })
   }
 }
-
-const moveToWishlistQuery = (user_id, product_id) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await addToWishlistQuery(user_id, product_id)
-      await deleteFromCartQuery(user_id, product_id)
-    } catch (e) {
-      reject(e)
-    }
-  })
-}
-
-const moveToWishlist = async (req, res) => {}
 
 module.exports = {
   getCart,

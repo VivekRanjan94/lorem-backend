@@ -86,10 +86,10 @@ app.post('/add-product', privateRoute, sellerRoute, addProduct)
 //Customer Routes
 app.get('/get-wishlist', privateRoute, customerRoute, getWishlist)
 app.get('/get-cart', privateRoute, customerRoute, getCart)
-app.post('/move-to-cart', privateRoute, customerRoute, moveToCart)
-app.post('/move-to-wishlist', privateRoute, customerRoute, moveToWishlist)
 app.post('/add-to-cart', privateRoute, customerRoute, addToCart)
 app.post('/add-to-wishlist', privateRoute, customerRoute, addToWishlist)
+app.post('/move-to-cart', privateRoute, customerRoute, moveToCart)
+app.post('/move-to-wishlist', privateRoute, customerRoute, moveToWishlist)
 app.post('/delete-from-cart', privateRoute, customerRoute, deleteFromCart)
 app.post(
   '/delete-from-wishlist',

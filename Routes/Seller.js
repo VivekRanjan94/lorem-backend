@@ -64,7 +64,6 @@ const getProducts = async (req, res) => {
   }
 }
 
-// { name, brand, price, image, seller_id }
 const addProductQuery = ({ name, brand, price, image, seller_id }) => {
   return new Promise((resolve, reject) => {
     try {
