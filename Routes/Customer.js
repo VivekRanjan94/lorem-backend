@@ -1,5 +1,55 @@
 const { connection } = require('../config/mysqlConfig')
 
+const isInCart = (user_id, product_id) => {
+  return new Promise((resolve, reject) => {
+    try {
+      connection.query(
+        `SELECT * FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id}`,
+        (err, rows) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            if (rows.length === 0) {
+              resolve(false)
+            } else {
+              resolve(true)
+            }
+          }
+        }
+      )
+    } catch (e) {
+      console.error(e)
+      reject(e)
+    }
+  })
+}
+
+const isInWishlist = (user_id, product_id) => {
+  return new Promise((resolve, reject) => {
+    try {
+      connection.query(
+        `SELECT * FROM wishlist WHERE user_id = ${user_id} AND product_id = ${product_id}`,
+        (err, rows) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            if (rows.length === 0) {
+              resolve(false)
+            } else {
+              resolve(true)
+            }
+          }
+        }
+      )
+    } catch (e) {
+      console.error(e)
+      reject(e)
+    }
+  })
+}
+
 const getCartQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
@@ -68,27 +118,13 @@ const addToCartQuery = (user_id, product_id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        `SELECT * FROM cart WHERE user_id = ${user_id} AND product_id = ${product_id}`,
+        `INSERT INTO cart (user_id, product_id) VALUES (${user_id}, ${product_id})`,
         (err, rows) => {
           if (err) {
             console.error(err)
             reject('Could not add to cart')
           } else {
-            if (rows.length !== 0) {
-              reject('Already in cart')
-            } else {
-              connection.query(
-                `INSERT INTO cart (user_id, product_id) VALUES (${user_id}, ${product_id})`,
-                (err2, rows2) => {
-                  if (err2) {
-                    console.error(err2)
-                    reject('Could not add to cart')
-                  } else {
-                    resolve(true)
-                  }
-                }
-              )
-            }
+            resolve(true)
           }
         }
       )
@@ -101,6 +137,14 @@ const addToCartQuery = (user_id, product_id) => {
 const addToCart = async (req, res) => {
   const { user_id, product_id } = req.body
   try {
+    const existsInCart = await isInCart(user_id, product_id)
+
+    if (existsInCart) {
+      return res
+        .status(503)
+        .json({ success: false, message: 'Already in cart' })
+    }
+
     await addToCartQuery(user_id, product_id)
 
     return res.status(200).json({ success: true })
@@ -131,6 +175,14 @@ const addToWishlistQuery = (user_id, product_id) => {
 const addToWishlist = async (req, res) => {
   const { user_id, product_id } = req.body
   try {
+    const existsInWishlist = await isInWishlist(user_id, product_id)
+
+    if (existsInWishlist) {
+      return res
+        .status(503)
+        .json({ success: false, message: 'Already in wishlist' })
+    }
+
     await addToWishlistQuery(user_id, product_id)
 
     return res.status(200).json({ success: true })
