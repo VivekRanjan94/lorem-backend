@@ -4,8 +4,7 @@ const getOrdersQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT user_id, product_id, product.name FROM orders INNER JOIN product ON orders.product_id = product.id WHERE seller_id = ? ',
-        id,
+        `SELECT orders.id as order_id, products.name as product_name, products.brand as product_brand, users.first_name as user_first_name, users.last_name as user_last_name, users.username as user_username FROM (orders INNER JOIN products ON orders.product_id = products.id) INNER JOIN users ON users.id = orders.user_id WHERE seller_id = ${id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -25,8 +24,7 @@ const getProductsQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT * FROM products WHERE seller_id = ?',
-        id,
+        `SELECT * FROM products WHERE seller_id = ${id}`,
         (err, rows) => {
           if (err) {
             reject(err)
@@ -43,7 +41,7 @@ const getProductsQuery = (id) => {
 }
 
 const getOrders = async (req, res) => {
-  const { seller_id } = req.body
+  const { seller_id } = req.query
   try {
     const orders = await getOrdersQuery(seller_id)
 
@@ -55,7 +53,7 @@ const getOrders = async (req, res) => {
 }
 
 const getProducts = async (req, res) => {
-  const { seller_id } = req.body
+  const { seller_id } = req.query
   try {
     const products = await getProductsQuery(seller_id)
 
