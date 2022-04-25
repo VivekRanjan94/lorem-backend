@@ -3,13 +3,16 @@ const { connection } = require('../config/mysqlConfig')
 const getAllProductsQuery = () => {
   return new Promise((resolve, reject) => {
     try {
-      connection.query('SELECT * FROM products', (err, rows) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(rows)
+      connection.query(
+        'SELECT * FROM products INNER JOIN users ON products.seller_id = users.id',
+        (err, rows) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(rows)
+          }
         }
-      })
+      )
     } catch (e) {
       reject(e)
     }
