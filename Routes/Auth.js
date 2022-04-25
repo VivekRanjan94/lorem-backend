@@ -97,4 +97,45 @@ const returnUser = (req, res) => {
   res.status(200).json({ success: true, user: req.user })
 }
 
-module.exports = { login, logout, register, returnUser }
+const privateRoute = (req, res, next) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ success: false, message: 'Access Denied' })
+  }
+
+  next()
+}
+
+const adminRoute = (req, res, next) => {
+  if (req.user.type === 'admin') {
+    next()
+  } else {
+    return res.status(401).json({ success: false, message: 'Access Denied' })
+  }
+}
+
+const sellerRoute = (req, res, next) => {
+  if (req.user.type === 'seller') {
+    next()
+  } else {
+    return res.status(401).json({ success: false, message: 'Access Denied' })
+  }
+}
+
+const customerRoute = (req, res, next) => {
+  if (req.user.type === 'customer') {
+    next()
+  } else {
+    return res.status(401).json({ success: false, message: 'Access Denied' })
+  }
+}
+
+module.exports = {
+  login,
+  logout,
+  register,
+  returnUser,
+  privateRoute,
+  adminRoute,
+  sellerRoute,
+  customerRoute,
+}

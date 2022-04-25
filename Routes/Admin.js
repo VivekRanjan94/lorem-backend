@@ -3,13 +3,16 @@ const { connection } = require('../config/mysqlConfig')
 const getAllOrdersQuery = () => {
   return new Promise((resolve, reject) => {
     try {
-      connection.query('SELECT * FROM orders', (err, rows) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(rows)
+      connection.query(
+        'SELECT orders.id as order_id, name as product_name, brand as product_brand, first_name as user_first_name, last_name as user_last_name, username as user_username FROM (orders LEFT JOIN products ON orders.product_id = products.id) LEFT JOIN users ON orders.user_id = users.id',
+        (err, rows) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(rows)
+          }
         }
-      })
+      )
     } catch (e) {
       console.error(e)
       reject(e)

@@ -10,7 +10,16 @@ const session = require('express-session')
 const { initPassport } = require('./config/passportConfig')
 const passport = require('passport')
 
-const { login, logout, register, returnUser } = require('./Routes/Auth')
+const {
+  login,
+  logout,
+  register,
+  returnUser,
+  privateRoute,
+  adminRoute,
+  sellerRoute,
+  customerRoute,
+} = require('./Routes/Auth')
 const { getAllOrders, getUsers } = require('./Routes/Admin')
 const { getProducts, getOrders, addProduct } = require('./Routes/Seller')
 const {
@@ -18,6 +27,10 @@ const {
   getCart,
   moveToCart,
   moveToWishlist,
+  addToCart,
+  addToWishlist,
+  deleteFromCart,
+  deleteFromWishlist,
 } = require('./Routes/Customer')
 const { getAllProducts } = require('./Routes/Common')
 
@@ -59,22 +72,31 @@ app.post('/logout', logout)
 app.post('/register', register)
 
 // Common Route
-app.get('/get-all-products', getAllProducts)
+app.get('/get-all-products', privateRoute, getAllProducts)
 
 // Admin Routes
-app.get('/get-users', getUsers)
-app.get('/get-all-orders', getAllOrders)
+app.get('/get-users', privateRoute, adminRoute, getUsers)
+app.get('/get-all-orders', privateRoute, adminRoute, getAllOrders)
 
 //Seller Routes
-app.get('/get-products', getProducts)
-app.get('/get-orders', getOrders)
-app.post('/add-product', addProduct)
+app.get('/get-products', privateRoute, sellerRoute, getProducts)
+app.get('/get-orders', privateRoute, sellerRoute, getOrders)
+app.post('/add-product', privateRoute, sellerRoute, addProduct)
 
 //Customer Routes
-app.get('/get-wishlist', getWishlist)
-app.get('/get-cart', getCart)
-app.post('/move-to-cart', moveToCart)
-app.post('/move-to-wishlist', moveToWishlist)
+app.get('/get-wishlist', privateRoute, customerRoute, getWishlist)
+app.get('/get-cart', privateRoute, customerRoute, getCart)
+app.post('/move-to-cart', privateRoute, customerRoute, moveToCart)
+app.post('/move-to-wishlist', privateRoute, customerRoute, moveToWishlist)
+app.post('/add-to-cart', privateRoute, customerRoute, addToCart)
+app.post('/add-to-wishlist', privateRoute, customerRoute, addToWishlist)
+app.post('/delete-from-cart', privateRoute, customerRoute, deleteFromCart)
+app.post(
+  '/delete-from-wishlist',
+  privateRoute,
+  customerRoute,
+  deleteFromWishlist
+)
 
 // Start server
 app.listen(PORT, () => {
