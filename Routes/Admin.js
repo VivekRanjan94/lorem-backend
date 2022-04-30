@@ -23,13 +23,16 @@ const getAllOrdersQuery = () => {
 const getUsersQuery = () => {
   return new Promise((resolve, reject) => {
     try {
-      connection.query('SELECT * FROM users', (err, rows) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(rows)
+      connection.query(
+        'SELECT first_name, last_name, username, type FROM users',
+        (err, rows) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(rows)
+          }
         }
-      })
+      )
     } catch (e) {
       console.error(e)
       reject(e)
