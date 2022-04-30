@@ -24,7 +24,7 @@ const getUsersQuery = () => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        'SELECT first_name, last_name, username, type FROM users',
+        'SELECT id, first_name, last_name, username, type FROM users',
         (err, rows) => {
           if (err) {
             reject(err)

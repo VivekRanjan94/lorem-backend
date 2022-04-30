@@ -24,7 +24,7 @@ const getProductsQuery = (id) => {
   return new Promise((resolve, reject) => {
     try {
       connection.query(
-        `SELECT * FROM products WHERE seller_id = ${id}`,
+        `SELECT products.name as name, products.brand as brand, products.price as price, products.image as image, COUNT(orders.id) as count FROM products LEFT JOIN orders ON products.id = orders.product_id WHERE products.seller_id = ${id}`,
         (err, rows) => {
           if (err) {
             reject(err)
